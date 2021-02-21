@@ -1,4 +1,5 @@
 import axios from "axios";
+import addReservation from "./addReservation"
 
 const userDiv = document.querySelector("#users");
 const restDiv = document.querySelector("#restaurants");
@@ -24,7 +25,8 @@ const renderRestaurants = (restaurants) => {
     .map(
       (restaurant) => `
   <div>
-  ${restaurant.name}
+  <h3>${restaurant.name}</h3> 
+  <div id = 'resNum' >Number of res: 0</div>
   </div>
   `
     )
@@ -38,7 +40,7 @@ const renderReservations = (reservations) => {
     .map(
       (reservation) => `
   <div>
-  ${reservation.userId} has a table reserved at ${reservation.restaurantId}
+  ${reservation.user.name} has a table reserved at ${reservation.restaurant.name}
   </div>
   `
     )
