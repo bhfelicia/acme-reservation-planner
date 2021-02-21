@@ -1,7 +1,8 @@
 const Sequelize = require("sequelize");
 const { STRING, ARRAY, FLOAT } = Sequelize;
 const conn = new Sequelize(
-  process.env.DATABASE_URL || "postgres://localhost/acme_db"
+  process.env.DATABASE_URL || "postgres://localhost/acme_db",
+  { logging: false }
 );
 
 const syncAndSeed = async () => {
@@ -141,7 +142,7 @@ const chalk = require("chalk");
 const path = require("path");
 
 app.use(require("body-parser").json());
-
+app.use(express.urlencoded({ extended: false }));
 app.use("/dist", express.static(path.join(__dirname, "dist")));
 
 app.get("/", (req, res, next) =>
@@ -167,27 +168,24 @@ app.get("/api/restaurants", async (req, res, next) => {
 app.get("/api/users/:userId/reservations", async (req, res, next) => {
   try {
     res.send(
-      await Reservation.findAll({ where: { userId: req.params.userId }, 
-      include: [
-        User, 
-        Restaurant
-      ] })
+      await Reservation.findAll({
+        where: { userId: req.params.userId },
+        include: [User, Restaurant],
+      })
     );
   } catch (ex) {
     next(ex);
   }
 });
 
-app.post("/api/users/:userId/reservations", async (req, res, next) => {
+app.post("/reservations", async (req, res, next) => {
   try {
-    res
-      .status(201)
-      .send(
-        await Reservation.create({
-          userId: req.params.userId,
-          restaurantId: req.body.restaurantId,
-        })
-      );
+    const { userId, restaurantId } = req.body;
+    await Reservation.create({
+      userId,
+      restaurantId,
+    });
+    res.redirect(`/#${userId}`);
   } catch (ex) {
     next(ex);
   }
